@@ -37,7 +37,11 @@ function PlaceDetails() {
 
 	async function deleteComment(deletedComment) {
 		await fetch(`http://localhost:5000/places/${place.placeId}/comments/${deletedComment.commentId}`, {
-			method: 'DELETE'
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${localStorage.getItem('token')}`
+			}
 		})
 
 		setPlace({
@@ -51,6 +55,7 @@ function PlaceDetails() {
 		const response = await fetch(`http://localhost:5000/places/${place.placeId}/comments`, {
 			method: 'POST',
 			headers: {
+				'Authorization': `Bearer ${localStorage.getItem('token')}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(commentAttributes)
@@ -95,12 +100,26 @@ function PlaceDetails() {
 			</h3>
 		)
 		comments = place.comments.map(comment => {
+			console.log(comment)
 			return (
 				<CommentCard key={comment.commentId} comment={comment} onDelete={() => deleteComment(comment)} />
 			)
 		})
 	}
+	let placeActions = null
 
+	if (currentUser?.role === 'admin') {
+		placeActions = (
+			<>
+				<a className="btn btn-warning" onClick={editPlace}>
+					Edit
+				</a>
+				<button type="submit" className="btn btn-danger" onClick={deletePlace}>
+					Delete
+				</button>
+			</>
+		)
+	}
 
 	return (
 		<main>
